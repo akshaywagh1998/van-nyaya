@@ -4,7 +4,7 @@
 
 > A small, reproducible forest-law experiment, not a legal-advice product.
 
-**Headline:** on 164 held-out questions from statute sections never seen in training, the Van Nyaya SFT adapter takes lexically detected refusals on unanswerable questions from **10% to 100%**, and lifts grounded answer quality by **+22% (English)** and **+15% (Hindi)** token F1, at a cost of 3 false refusals in 124 answerable questions.
+**Headline:** on 164 held-out questions from statute sections never seen in training, the Van Nyaya SFT adapter takes lexically detected refusals on unanswerable questions from **10% to 100%**, and lifts grounded answer quality by **+22% (English)** and **+15% (Hindi)** token F1, while the share of answerable questions whose answer contains a refusal phrase stays about level with the base (17 vs 16 of 124; `scripts/score.py` `is_refusal`).
 
 ## 1. The problem
 
@@ -31,19 +31,19 @@ Base model: CohereLabs/tiny-aya-global (weights loaded from an ungated mirror of
 
 ## 3. Results (held-out, n = 164)
 
-| model | refusal proxy (40 unanswerable) | EN token F1 (94) | HI token F1 (30) | false refusals (124 answerable) |
+| model | refusal proxy (40 unanswerable) | EN token F1 (94) | HI token F1 (30) | answerable outputs with a refusal phrase (124; `is_refusal`) |
 |---|---|---|---|---|
-| Tiny Aya Global (base) | 10.0% | 0.294 | 0.265 | 0 |
-| DPO on base, 50 steps | 40.0% | 0.287 | 0.267 | 0 |
-| DPO on base, final (200 pairs) | 45.0% | 0.285 | 0.259 | |
-| **Van Nyaya SFT (511 rows, final)** | **100.0%** | **0.359** | **0.306** | 3 (2.4%) |
-| SFT + DPO (200 pairs, ablation) | 100.0% | 0.355 | 0.300 | 5 (SFT's 3 + idx 79, 107) |
+| Tiny Aya Global (base) | 10.0% | 0.294 | 0.265 | 16 (12.9%) |
+| DPO on base, 50 steps | 40.0% | 0.287 | 0.267 | 13 (10.5%) |
+| DPO on base, final (200 pairs) | 45.0% | 0.285 | 0.259 | 14 (11.3%) |
+| **Van Nyaya SFT (511 rows, final)** | **100.0%** | **0.359** | **0.306** | 17 (13.7%) |
+| SFT + DPO (200 pairs, ablation) | 100.0% | 0.355 | 0.300 | 15 (12.1%) |
 
 What it shows:
 
 - **Refusal is learned from data, not from preference tuning alone.** DPO on the base model moves abstention from 10% to 45% but never touches answer quality. Supervised fine-tuning on curated grounded + refusal data matches the lexical refusal criterion on all 40 unanswerable test questions. This does not establish universal abstention or legal accuracy.
 - **Grounding improves answers in both languages.** +22% English and +15% Hindi token F1 over the base, even though Hindi made up under a third of training data.
-- **The safety cost is small and visible.** 3 of 124 answerable questions get a refusal the base would not give. We report it rather than hide it.
+- **The over-refusal cost, measured honestly.** With the same `is_refusal` phrase check used for the refusal metric, 17 of 124 answerable outputs from the SFT model contain a refusal phrase, against 16 for the base; 10 of the 17 are new relative to the base. An earlier draft reported "3", which this check does not reproduce, so it has been replaced. A phrase match is a lexical proxy: some flagged answers still answer the question.
 
 All generations and per-model score files are public in the eval-outputs dataset, so every number above can be re-scored.
 
