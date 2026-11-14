@@ -35,7 +35,7 @@ Base model: CohereLabs/tiny-aya-global (weights loaded from an ungated mirror of
 | DPO on base, 50 steps | 40.0% | 0.287 | 0.267 | 0 |
 | DPO on base, final (200 pairs) | 45.0% | 0.285 | 0.259 | |
 | **Van Nyaya SFT (511 rows, final)** | **100.0%** | **0.359** | **0.306** | 3 (2.4%) |
-| SFT + DPO | running | | | |
+| SFT + DPO (200 pairs, ablation) | 100.0% | 0.355 | 0.300 | 5 (SFT's 3 + idx 79, 107) |
 
 What it shows:
 
